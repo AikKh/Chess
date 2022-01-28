@@ -46,31 +46,21 @@ class Figure(pygame.sprite.Sprite):
 
 #######################################################################
             
-    def detectOccupiedPlace(self, current_game: list[list[dict]], move: tuple, can_take = True):
+    def detectOccupiedPlace(self, current_game: list[list], move: tuple, can_take = True):
         our_x, our_y = self.x[self._position[0]], self.y[self._position[1]]
         place_x, place_y = our_x + move[0], our_y + move[1]
         
         if place_x < 0 or place_y < 0 or place_x >= 8 or place_y >= 8:
             return False
         place = current_game[place_x][place_y]
-        
-        if self._type == 'pin':
-            if not can_take and place['color'] == None:
-                return ('free', (place_x, place_y))
-            elif place['color'] != self._color and place['color'] != None and can_take:
-                return ('eat', (place_x, place_y))
-            else:
-                return False
             
-        if place['color'] == self._color:
-            return False
-        elif place['color'] == None:
+        if place:
+            if place._color == self._color:
+                return False
+            elif place._color != self._color:
+                return ('eat', (place_x, place_y))
+        else:
             return ('free', (place_x, place_y))
-        elif place['color'] != self._color:
-            return ('eat', (place_x, place_y))
-        
-        
-        return False
             
 #######################################################################
     
@@ -78,4 +68,4 @@ class Figure(pygame.sprite.Sprite):
         self._position = (self.letters[cors[0]], str(8 - int(cors[1])))
         self.rect.x = cors[0]*100
         self.rect.y = cors[1]*100
-    
+            

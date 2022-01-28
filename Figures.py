@@ -9,6 +9,8 @@ class Pin(Figure):
     imgs = ['BlackPin.png', 'WhitePin.png']
     moves = {'white': [[(0, -1), (0, -2)], [(-1, -1), (1, -1)]], 'black': [[(0, 1), (0, 2)], [(1, 1), (-1, 1)]]}
     
+    become_queen = False
+    
     def __init__(self, pos: tuple[str, str], color: str):
         self._image = None
         self._type = 'pin'
@@ -21,25 +23,26 @@ class Pin(Figure):
             
         super().__init__(self._image, pos, self._type, color)
         
-    def PosibleMoves(self, current_game):
+    def boolQueen(self):
+        return self._color == 'black' and self._position[1] == '1' or self._color == 'white' and self._position[1] == '8'
         
+    def PosibleMoves(self, current_game):
+        if self.boolQueen():
+            print('become_queen')
+            self.become_queen = True
         for moves_cors, can_take in zip(self.moves[self._color], [False, True]):
             for cors in moves_cors:
                 if self._color == 'white' and not can_take and moves_cors.index(cors) == 1:
                     if self._position[1] != '2':
-                        print('break')
                         break
                 elif self._color == 'black' and not can_take and moves_cors.index(cors) == 1:
                     if self._position[1] != '7':
                         break
                 move = self.detectOccupiedPlace(current_game, cors, can_take)
                 if move:
-                    self._posible_moves.append(move)
-                    if not can_take:
-                        self.first_pin_move = False
-                elif not can_take:
-                    break 
-                
+                    if can_take and move[0] == 'eat' or not can_take and move[0] == 'free':
+                        self._posible_moves.append(move)
+
 class Horse(Figure):
     
     game_folder = os.path.dirname(__file__)

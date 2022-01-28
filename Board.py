@@ -22,7 +22,8 @@ class Board():
     
     #list with color and cordinates of each squere
     color_cor = [[(['w', 'b'][x%2], (int((x-y)*100+50), int(800-(y/7)*100 - 50))) for x in range(y, y+8)] for y in range(0, 50, 7)]
-    current_game = [[{'color': None, 'type': None} for _ in range(8)] for i in range(8)]
+    #current_game = [[{'color': None, 'type': None} for _ in range(8)] for i in range(8)]
+    current_game = [[None for _ in range(8)] for i in range(8)]
 
     figures = []
     
@@ -67,9 +68,10 @@ class Board():
            
         for figure in self.figures:
             x, y = figure._position
-            place = self.current_game[self.index_letters[x] - 1][8-int(y)]
-            place['color'] = figure._color
-            place['type'] = figure._type 
+            # place = self.current_game[self.index_letters[x] - 1][8-int(y)]
+            self.current_game[self.index_letters[x] - 1][8-int(y)] = figure
+            # place['color'] = figure._color
+            # place['type'] = figure._type 
                 
         # for y, color in zip([0, 7], ['black', 'white']):
         #     for x, type in zip(range(8), ['rook', 'horse', 'elef', 'queen', 'king', 'elef', 'horse', 'rook']):
@@ -117,13 +119,17 @@ class Board():
         self.figures.append(fig)
         self.all_sprites.add(fig)
         
+    def removeFigure(self, fig):
+        self.all_sprites.remove(fig)
+        self.figures.remove(fig)
+        
     def updatePosition(self):
-        self.current_game = [[{'color': None, 'type': None} for _ in range(8)] for i in range(8)]
+        self.current_game = [[None for _ in range(8)] for i in range(8)]
         for figure in self.figures:
+            
             x, y = figure._position
-            place = self.current_game[self.index_letters[x] - 1][8-int(y)]
-            place['color'] = figure._color
-            place['type'] = figure._type
+            # place = self.current_game[self.index_letters[x] - 1][8-int(y)]
+            self.current_game[self.index_letters[x] - 1][8-int(y)] = figure
             
     def removeYellow(self):
         for spr in self.all_sprites:
@@ -158,6 +164,10 @@ class Board():
                 
                 if not self.choosed_exist:
                     for figure in self.figures:
+                        if figure._type == 'pin':
+                            if figure.become_queen:
+                                self.removeFigure(figure)
+                                self.addFigure(Queen(figure._position, figure._color))
                         if figure._position == (self.letters[x], str(8 - y)) and figure._color == self.players[self.move % 2]:
                             self.choosed_figrue = figure
                             self.choosed_exist = True
@@ -174,8 +184,7 @@ class Board():
                             if cors[0] == 'eat':
                                 for spr in self.figures:
                                     if spr._position == (self.letters[x], str(8 - int(y))):
-                                        self.all_sprites.remove(spr)
-                                        self.figures.remove(spr)
+                                        self.removeFigure(spr)
                             self.choosed_figrue.move(x, y)
                             self.move += 1
                             self.updatePosition()
